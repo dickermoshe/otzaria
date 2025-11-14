@@ -10,6 +10,7 @@ import 'package:otzaria/indexing/bloc/indexing_bloc.dart';
 import 'package:otzaria/indexing/bloc/indexing_state.dart';
 import 'package:otzaria/models/books.dart';
 import 'package:otzaria/utils/open_book.dart';
+import 'package:otzaria/i18n/translations.g.dart';
 
 class FindRefDialog extends StatefulWidget {
   const FindRefDialog({super.key});
@@ -66,11 +67,11 @@ class _FindRefDialogState extends State<FindRefDialog> {
           children: [
             Icon(FluentIcons.warning_24_regular, color: Colors.orange[700]),
             const SizedBox(width: 8),
-            const Expanded(
+            Expanded(
               child: Text(
-                'אינדקס המקורות בתהליך בנייה. תוצאות החיפוש עלולות להיות חלקיות.',
+                context.t.findRef.warning,
                 textAlign: TextAlign.right,
-                style: TextStyle(color: Colors.black87),
+                style: const TextStyle(color: Colors.black87),
               ),
             ),
             IconButton(
@@ -88,9 +89,9 @@ class _FindRefDialogState extends State<FindRefDialog> {
     final focusRepository = context.read<FocusRepository>();
 
     return AlertDialog(
-      title: const Text(
-        'איתור מקורות',
-        style: TextStyle(fontWeight: FontWeight.bold),
+      title: Text(
+        context.t.findRef.title,
+        style: const TextStyle(fontWeight: FontWeight.bold),
         textAlign: TextAlign.center,
       ),
       content: SizedBox(
@@ -133,8 +134,7 @@ class _FindRefDialogState extends State<FindRefDialog> {
                     focusNode: focusRepository.findRefSearchFocusNode,
                     autofocus: true,
                     decoration: InputDecoration(
-                      hintText:
-                          'הקלד מקור מדוייק, לדוגמה: בראשית פרק א או שוע אוח יב   ',
+                      hintText: context.t.findRef.hint,
                       suffixIcon: IconButton(
                         icon: const Icon(FluentIcons.dismiss_24_regular),
                         onPressed: () {
@@ -177,14 +177,14 @@ class _FindRefDialogState extends State<FindRefDialog> {
                   if (state is FindRefLoading) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (state is FindRefError) {
-                    return Text('Error: ${state.message}');
+                    return Text(context.t.findRef.errorMessage(message: state.message));
                   } else if (state is FindRefSuccess && state.refs.isEmpty) {
                     if (focusRepository.findRefSearchController.text.length >=
                         3) {
-                      return const Center(
+                      return Center(
                         child: Text(
-                          'אין תוצאות',
-                          style: TextStyle(fontSize: 16),
+                          context.t.findRef.noResults,
+                          style: const TextStyle(fontSize: 16),
                         ),
                       );
                     } else {
@@ -243,7 +243,7 @@ class _FindRefDialogState extends State<FindRefDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('סגור'),
+          child: Text(context.t.common.close), // Old: 'סגור'
         ),
       ],
     );

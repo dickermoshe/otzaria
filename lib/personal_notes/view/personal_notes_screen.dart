@@ -12,6 +12,7 @@ import 'package:otzaria/personal_notes/storage/personal_notes_storage.dart';
 import 'package:otzaria/personal_notes/widgets/personal_note_editor_dialog.dart';
 import 'package:otzaria/widgets/confirmation_dialog.dart';
 import 'package:otzaria/widgets/input_dialog.dart';
+import 'package:otzaria/i18n/translations.g.dart';
 
 class PersonalNotesManagerScreen extends StatefulWidget {
   const PersonalNotesManagerScreen({super.key});
@@ -99,13 +100,13 @@ class _PersonalNotesManagerScreenState extends State<PersonalNotesManagerScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'אירעה שגיאה בעת טעינת רשימת ההערות:\n${_booksError!}',
+              '${context.t.notes.loadNotesError}\n${_booksError!}',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             FilledButton(
               onPressed: _loadBooks,
-              child: const Text('נסה שוב'),
+              child: Text(context.t.notes.tryAgain), // Old: 'נסה שוב'
             ),
           ],
         ),
@@ -117,11 +118,12 @@ class _PersonalNotesManagerScreenState extends State<PersonalNotesManagerScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('לא נמצאו הערות אישיות.'),
+            Text(context
+                .t.notes.noPersonalNotes), // Old: 'לא נמצאו הערות אישיות.'
             const SizedBox(height: 12),
             FilledButton(
               onPressed: _loadBooks,
-              child: const Text('רענון'),
+              child: Text(context.t.common.refresh), // Old: 'רענון'
             ),
           ],
         ),
@@ -151,7 +153,7 @@ class _PersonalNotesManagerScreenState extends State<PersonalNotesManagerScreen>
                 ),
               ),
               IconButton(
-                tooltip: 'רענון',
+                tooltip: context.t.common.refresh,
                 onPressed: _reloadCurrentBook,
                 icon: const Icon(FluentIcons.arrow_clockwise_24_regular),
               ),
@@ -160,9 +162,9 @@ class _PersonalNotesManagerScreenState extends State<PersonalNotesManagerScreen>
           const SizedBox(height: 12),
           TabBar(
             controller: _tabController,
-            tabs: const [
-              Tab(text: 'הערות'),
-              Tab(text: 'הערות חסרות מיקום'),
+            tabs: [
+              Tab(text: context.t.notes.title),
+              Tab(text: context.t.notes.missingLocationNotes),
             ],
           ),
           const SizedBox(height: 8),
@@ -204,7 +206,7 @@ class _PersonalNotesManagerScreenState extends State<PersonalNotesManagerScreen>
     if (notes.isEmpty) {
       return Center(
         child: Text(
-          located ? 'אין הערות במיקום זה.' : 'אין הערות חסרות מיקום.',
+          located ? context.t.notes.noNotesInLocation : context.t.notes.noMissingNotes,
         ),
       );
     }
@@ -221,7 +223,7 @@ class _PersonalNotesManagerScreenState extends State<PersonalNotesManagerScreen>
             title: Row(
               children: [
                 Text(
-                  located ? 'שורה ${note.lineNumber}' : 'הערה ללא מיקום',
+                  located ? context.t.notes.lineNumber(line: note.lineNumber.toString()) : context.t.notes.noteWithoutLocation,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -254,7 +256,7 @@ class _PersonalNotesManagerScreenState extends State<PersonalNotesManagerScreen>
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      'שורה קודמת: ${note.lastKnownLineNumber}',
+                      '${context.t.notes.previousLine}: ${note.lastKnownLineNumber}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
@@ -265,18 +267,18 @@ class _PersonalNotesManagerScreenState extends State<PersonalNotesManagerScreen>
               spacing: 4,
               children: [
                 IconButton(
-                  tooltip: 'עריכה',
+                  tooltip: context.t.notes.edit,
                   icon: const Icon(FluentIcons.edit_24_regular),
                   onPressed: () => _editNote(note),
                 ),
                 if (!located)
                   IconButton(
-                    tooltip: 'מיקום מחדש',
+                    tooltip: context.t.notes.reposition,
                     icon: const Icon(FluentIcons.location_24_regular),
                     onPressed: () => _repositionMissing(note),
                   ),
                 IconButton(
-                  tooltip: 'מחיקה',
+                  tooltip: context.t.common.delete,
                   icon: const Icon(FluentIcons.delete_24_regular),
                   onPressed: () => _deleteNote(note),
                 ),
@@ -293,7 +295,7 @@ class _PersonalNotesManagerScreenState extends State<PersonalNotesManagerScreen>
     final result = await showDialog<String>(
       context: context,
       builder: (context) => PersonalNoteEditorDialog(
-        title: 'עריכת הערה',
+        title: context.t.notes.editNote,
         controller: controller,
       ),
     );
@@ -301,7 +303,7 @@ class _PersonalNotesManagerScreenState extends State<PersonalNotesManagerScreen>
 
     final trimmed = result.trim();
     if (trimmed.isEmpty) {
-      UiSnack.show('ההערה ריקה, לא נשמרה');
+      UiSnack.show(context.t.notes.emptyNoteNotSaved);
       return;
     }
 
@@ -313,15 +315,15 @@ class _PersonalNotesManagerScreenState extends State<PersonalNotesManagerScreen>
             content: trimmed,
           ),
         );
-    UiSnack.show('ההערה עודכנה');
+    UiSnack.show(context.t.notes.noteUpdated);
   }
 
   Future<void> _deleteNote(PersonalNote note) async {
     final shouldDelete = await showConfirmationDialog(
       context: context,
-      title: 'מחיקת הערה',
-      content: 'האם למחוק את ההערה לצמיתות?',
-      confirmText: 'מחק',
+      title: context.t.notes.deleteNote,
+      content: context.t.notes.deleteNoteConfirm,
+      confirmText: context.t.common.delete,
       isDangerous: true,
     );
 
@@ -333,18 +335,18 @@ class _PersonalNotesManagerScreenState extends State<PersonalNotesManagerScreen>
               noteId: note.id,
             ),
           );
-      UiSnack.show('ההערה נמחקה');
+      UiSnack.show(context.t.notes.noteDeleted);
     }
   }
 
   Future<void> _repositionMissing(PersonalNote note) async {
     final result = await showInputDialog(
       context: context,
-      title: 'מיקום מחדש של הערה',
+      title: context.t.notes.repositionNote,
       subtitle: note.lastKnownLineNumber != null
-          ? 'שורה קודמת: ${note.lastKnownLineNumber}'
+          ? '${context.t.notes.previousLine}: ${note.lastKnownLineNumber}'
           : null,
-      labelText: 'מספר שורה חדש',
+      labelText: context.t.notes.newLineNumber,
       initialValue: (note.lastKnownLineNumber ?? '').toString(),
       keyboardType: TextInputType.number,
     );
@@ -360,7 +362,7 @@ class _PersonalNotesManagerScreenState extends State<PersonalNotesManagerScreen>
               lineNumber: newLine,
             ),
           );
-      UiSnack.show('ההערה הועברה לשורה $newLine');
+      UiSnack.show(context.t.notes.noteMovedToLine(line: newLine.toString()));
     }
   }
 

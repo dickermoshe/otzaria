@@ -10,6 +10,7 @@ import 'package:otzaria/search/bloc/search_state.dart';
 import 'package:otzaria/models/books.dart';
 import 'package:otzaria/library/models/library.dart';
 import 'package:otzaria/tabs/models/searching_tab.dart';
+import 'package:otzaria/i18n/translations.g.dart';
 
 // Constants
 const double _kMinQueryLength = 2;
@@ -95,7 +96,7 @@ class _SearchFacetFilteringState extends State<SearchFacetFiltering>
       child: TextField(
         controller: _filterQuery,
         decoration: InputDecoration(
-          hintText: 'איתור ספר…',
+          hintText: context.t.search.findBook,
           prefixIcon: const Icon(FluentIcons.filter_24_regular),
           suffixIcon: IconButton(
             onPressed: _clearFilter,
@@ -194,10 +195,10 @@ class _SearchFacetFilteringState extends State<SearchFacetFiltering>
   Widget _buildBooksList(List<Book> books) {
     // אם אין ספרים, הצג הודעה
     if (books.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text('לא נמצאו ספרים'),
+          padding: const EdgeInsets.all(16.0),
+          child: Text(context.t.search.noBooksFound),
         ),
       );
     }

@@ -6,6 +6,7 @@ import 'package:otzaria/library/models/library.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'package:otzaria/utils/open_book.dart';
 import 'package:otzaria/core/scaffold_messenger.dart';
+import 'package:otzaria/i18n/translations.g.dart';
 
 // Generic tree search for outlines
 typedef EntryTextGetter<T> = String Function(T entry);
@@ -66,7 +67,8 @@ void _openDafYomiBookInCategory(BuildContext context, String tractate,
     }
 
     if (book == null) {
-      UiSnack.showError('לא נמצאה קטגוריה: $categoryName',
+      UiSnack.showError(
+          context.t.dafYomi.categoryNotFound(categoryName: categoryName),
           backgroundColor: Theme.of(context).colorScheme.error);
       return;
     } else {
@@ -97,7 +99,10 @@ void _openDafYomiBookInCategory(BuildContext context, String tractate,
     final availableBooks =
         allBooksInCategory.map((b) => b.title).take(5).join(', ');
     UiSnack.showError(
-        'לא נמצא ספר: $tractate ב$categoryName\nספרים זמינים: $availableBooks...',
+        context.t.dafYomi.bookNotFound(
+            tractate: tractate,
+            categoryName: categoryName,
+            availableBooks: availableBooks),
         backgroundColor: Theme.of(context).colorScheme.error);
   }
 }
@@ -159,9 +164,9 @@ Future<void> _openBookFromRefHelper(
     if (index != null) {
       openBook(context, book, index, '', ignoreHistory: true);
     } else {
-      UiSnack.showError(UiSnack.sectionNotFound);
+      UiSnack.showError(context.t.messages.sectionNotFound);
     }
   } else {
-    UiSnack.showError(UiSnack.bookNotFound);
+    UiSnack.showError(context.t.messages.bookNotFound);
   }
 }
